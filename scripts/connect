@@ -1,0 +1,3 @@
+#!/bin/bash -xe
+
+wscat -c wss://edgewoodsailing.org/course-server/courses/D4F19F6C-CCC4-4BB8-A376-368671E5C7ED/course

@@ -1,0 +1,15 @@
+#!/bin/bash -xe
+
+version=`scripts/version`
+revision=`git rev-parse HEAD`
+
+tags=(--tag llamagraphics/trmnl-tides:$version --tag ghcr.io/samalone/trmnl-tides:$version)
+if [[ $version != "dev" ]]
+then
+    tags+=(--tag llamagraphics/trmnl-tides:latest --tag ghcr.io/samalone/trmnl-tides:latest)
+fi
+
+DOCKER_BUILDKIT=1 docker build \
+    --build-arg REVISION=$revision \
+    --build-arg VERSION=$version \
+    ${tags[@]} .

@@ -1,0 +1,5 @@
+#!/bin/bash -xe
+
+mysql=$(kubectl get pod --context=ess -l app=mysql -o jsonpath="{.items[0].metadata.name}")
+
+echo "drop table courses; drop table _fluent_migrations" | kubectl exec --context ess --stdin $mysql -- mysql --database orca

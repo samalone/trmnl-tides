@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:trmnl-tides}",
+            "name": "Debug Server",
+            "program": "${workspaceFolder:trmnl-tides}/.build/debug/Server",
+            "preLaunchTask": "swift: Build Debug Server"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:trmnl-tides}",
+            "name": "Release Server",
+            "program": "${workspaceFolder:trmnl-tides}/.build/release/Server",
+            "preLaunchTask": "swift: Build Release Server"
+        }
+    ]
+}

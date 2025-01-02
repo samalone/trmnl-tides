@@ -1,0 +1,17 @@
+#!/bin/bash -xe
+version=`scripts/version`
+
+if [[ `uname -m` != "x86_64" ]]
+then
+    echo "Only push amd64 images"
+    exit 0
+fi
+
+docker push llamagraphics/course-server:$version &
+docker push ghcr.io/samalone/course-server:$version &
+
+if [[ $version != "dev" ]]
+then
+    docker push llamagraphics/course-server:latest &
+    docker push ghcr.io/samalone/course-server:latest &
+fi

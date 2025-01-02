@@ -1,6 +1,9 @@
+import Foundation
+#if canImport(FoundationNetworking)
+    import FoundationNetworking
+#endif
 import Hummingbird
 import HummingbirdFoundation
-import Foundation
 
 public enum TideType: String, Codable {
     case high = "H"
