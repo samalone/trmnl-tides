@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tides-server-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  tls:
+  - hosts:
+    - proper-course.app
+    secretName: proper-course-tls
+  rules:
+  - host: proper-course.app
+    http:
+      paths:
+      - pathType: ImplementationSpecific
+        path: "/tides(/|$)(.*)"
+        backend:
+          service:
+            name: tides-server
+            port:
+              number: 80

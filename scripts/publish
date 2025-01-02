@@ -1,8 +1,8 @@
 #!/bin/bash -xe
 
 export KUBECONFIG=$HOME/.kube/configs/proper-course-kubeconfig.yaml
-context="--context proper-course"
+context="--context pc"
 
 kubectl $context apply -k kubernetes
-kubectl $context scale deploy course-server --replicas=0
-kubectl $context scale deploy course-server --replicas=1
+kubectl $context scale deploy tides-server --replicas=0
+kubectl $context scale deploy tides-server --replicas=1
