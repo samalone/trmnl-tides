@@ -8,7 +8,35 @@ then
     tags+=(--tag llamagraphics/trmnl-tides:latest)
 fi
 
-docker buildx build --platform linux/arm64,linux/amd64 \
+# Prefer the shared multi-arch 'llama' builder (native amd64 node on an
+# Intel Mac; see ~/maintenance/scripts/setup-llama-builder.sh). Fall back
+# to the local emulated 'multiplatform' builder with a loud warning.
+# Stop the remote builder on exit so SSH connections don't accumulate;
+# it auto-starts on next use.
+BUILDER="llama"
+REMOTE_BUILDER=""
+cleanup() {
+    if [[ -n "$REMOTE_BUILDER" ]]; then
+        docker buildx stop "$REMOTE_BUILDER" 2>/dev/null || true
+    fi
+}
+trap cleanup EXIT
+
+if docker buildx inspect "$BUILDER" &> /dev/null; then
+    echo "Using shared multi-arch builder '$BUILDER'"
+    docker buildx use "$BUILDER"
+    REMOTE_BUILDER="$BUILDER"
+elif docker buildx inspect multiplatform &> /dev/null; then
+    echo "WARNING: builder '$BUILDER' not found; using 'multiplatform' (emulated amd64)" >&2
+    echo "         Run ~/maintenance/scripts/setup-llama-builder.sh for native builds." >&2
+    docker buildx use multiplatform
+else
+    echo "WARNING: creating emulated builder 'multiplatform' — run ~/maintenance/scripts/setup-llama-builder.sh for native builds." >&2
+    docker buildx create --name multiplatform --use
+fi
+
+docker buildx build \
+    --platform linux/arm64,linux/amd64 \
     --build-arg REVISION=$revision \
     --build-arg VERSION=$version \
     ${tags[@]} --push .
