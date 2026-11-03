@@ -29,6 +29,12 @@ spec:
           ports:
             - name: vapor
               containerPort: 80
+          # Without requests this pod was BestEffort: first to be evicted under
+          # memory pressure. Uses ~1m CPU and ~21Mi (2026-11-03).
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
           env:
             - name: TZDIR
               value: "/usr/share/zoneinfo/posix"
