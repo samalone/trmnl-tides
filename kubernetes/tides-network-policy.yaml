@@ -1,0 +1,70 @@
+# tides-server: in only from the edge Envoy.
+# Out: NOAA tides over HTTPS (pc-fi6). The namespace's default-deny blocks everything else.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tides-server
+spec:
+  podSelector:
+    matchLabels:
+      app: tides-server
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Only the edge Envoy Gateway's proxy. Ports are the pod's, not the
+    # Service's: policy matching happens after kube-proxy's DNAT.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: envoy-gateway-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: envoy
+              app.kubernetes.io/component: proxy
+      ports:
+        - protocol: TCP
+          port: 80
+  egress:
+    # DNS (CoreDNS).
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Our own public hostnames. A pod connecting to the NodeBalancer IP is
+    # short-circuited by kube-proxy straight to the Envoy pod (a 10.x
+    # address), so the internet rule below doesn't cover it.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: envoy-gateway-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: envoy
+              app.kubernetes.io/component: proxy
+      ports:
+        - protocol: TCP
+          port: 10080
+        - protocol: TCP
+          port: 10443
+    # HTTPS to the public internet, with private ranges excluded so this
+    # rule can't reach other pods or services. Hostnames can't be listed in
+    # a NetworkPolicy; see ess-kubernetes' drupal6 policy for the options.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
