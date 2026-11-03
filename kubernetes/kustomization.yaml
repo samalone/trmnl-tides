@@ -3,7 +3,6 @@ kind: Kustomization
 resources:
   - tides-svc.yaml
   - tides-deploy.yaml
-  - tides-server-ingress.yaml
   - tides-server-httproute.yaml
 # Pin the image the cluster was running on 2026-11-03 rather than the floating
 # :dev tag, so a restart can't silently pick up a different build and
