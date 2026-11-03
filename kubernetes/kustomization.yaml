@@ -4,3 +4,11 @@ resources:
   - tides-svc.yaml
   - tides-deploy.yaml
   - tides-server-ingress.yaml
+  - tides-server-httproute.yaml
+# Pin the image the cluster was running on 2026-11-03 rather than the floating
+# :dev tag, so a restart can't silently pick up a different build and
+# Vigilant can tell what runs. Replace with a version tag once the image is
+# published with one.
+images:
+  - name: llamagraphics/trmnl-tides
+    digest: sha256:4f51e06ece9bfab62cff3f05263834fd296af7764d717eb8d871b9acec87aef6
